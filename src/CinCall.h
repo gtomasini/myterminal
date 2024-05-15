@@ -1,0 +1,45 @@
+#pragma once
+#include <iostream>
+#include <atomic>
+#include <pjsua2.hpp>
+#include "Color.h"
+
+class C_acc;
+
+class CinCall : public pj::Call{
+public:
+    CinCall (pj::Account &acc, int call_id = PJSUA_INVALID_ID)
+    :_myAcc((C_acc *)&acc), Call(acc, call_id){
+        __PRETTY__ 
+        _ci.state = PJSIP_INV_STATE_NULL;
+        _connected_2_B = false;
+        _wavPlayer = new pj::AudioMediaPlayer();
+    }
+    
+    ~CinCall() {
+        __PRETTY__ 
+        if (_wavPlayer)  delete _wavPlayer;
+    }
+
+    const pj::CallInfo & getCallInfo() const{
+        return _ci;
+    }
+
+    bool getConnected_2_B() const {
+        return _connected_2_B.load();
+    }
+    
+    virtual void onCallState(pj::OnCallStateParam &prm) override;
+    virtual void onCallTransferRequest(pj::OnCallTransferRequestParam &prm) override;
+    virtual void onCallReplaceRequest(pj::OnCallReplaceRequestParam &prm) override;
+    virtual void onCallMediaState(pj::OnCallMediaStateParam &prm) override;
+
+private:
+    C_acc *_myAcc=nullptr;
+    pj::AudioMediaPlayer *_wavPlayer=nullptr;
+    pj::CallInfo _ci;
+    std::atomic_bool _connected_2_B;//after call confirmed
+    bool _error=false;
+
+    static constexpr const char *_wavFile="data/input.16.wav";
+};
