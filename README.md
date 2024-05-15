@@ -1,2 +1,2 @@
 # myterminal
-# terminal pjsip for testing calls
+# terminal pjsip (pjsua2) for testing calls
